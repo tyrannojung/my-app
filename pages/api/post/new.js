@@ -8,7 +8,8 @@ export default async function handler(request, response){
         try {
             const db = (await connectDB).db("forum")
             let result = await db.collection('post').insertOne(request.body);
-            return response.status(200).redirect('/list')
+            console.log(result)
+            return response.redirect(302,'/list')
         } catch (error) {
             return response.status(500).json('db연결 애러')
         }

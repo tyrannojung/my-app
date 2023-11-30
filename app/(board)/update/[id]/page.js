@@ -8,7 +8,7 @@ export default async function Update(props){
         <div>
             <div className="p-20">
                 <h4>글수정</h4>
-                <form action="/api/put/update" method="POST">
+                <form action="/api/post/update" method="POST">
                     <input type="hidden" name="_id" value={props.params.id}/>
                     <input name="title" defaultValue={result.title}/>
                     <input name="content" defaultValue={result.content}/>

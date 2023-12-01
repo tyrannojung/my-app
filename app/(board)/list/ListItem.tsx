@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { post } from "@/app/_types/post"
 import { MouseEvent } from 'react';
 
-
 export default function ListItem( {result} : {result : post[]}) {
     return (
         <div>

@@ -52,10 +52,18 @@ a {
   color: black;
 }
 .logo {
-  font-weight: bold;
+  width: auto; height: auto;
+  max-width: 40px;
+  max-height: 40px;
+  margin-bottom: 4px;
 } 
 
 .list-item {
   opacity: 1;
   transition: all 1s;
 } 
+
+.middle_logo {
+  max-width: 100%;
+  margin-bottom: 10px;
+}

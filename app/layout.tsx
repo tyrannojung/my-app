@@ -1,7 +1,12 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './css/globals.css'
-import Link from 'next/link';
+import { Container, SSRProvider } from '@/util/bootstrap';
+import 'bootstrap/dist/css/bootstrap.css';
+// import '../styles/globals.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import Footer from "@/app/_components/Footer";
+import Header from './_components/Header';
+
 
 export const metadata: Metadata = {
   metadataBase: new URL('http://localhost:3000'),
@@ -33,14 +38,18 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+
   return (
     <html>
       <body>
-      <div className="navbar"> 
-        <Link href="/" className="logo">Appleforum</Link> 
-        <Link href="/list">List</Link> 
-      </div>  
-        {children}
+        <SSRProvider>
+          <Header />
+          <main>
+            <Container className="py-4">
+              {children}
+            </Container>
+          </main>
+        </SSRProvider>
       </body>
     </html>
   )

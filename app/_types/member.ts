@@ -1,13 +1,11 @@
 import { ObjectId } from "mongodb"
 
 export interface member {
-    _id : ObjectId | string
+    _id? : ObjectId | string
     id : string
-    password : string
     publicKey : string
     email : string
     name : string
-    role : number
-    updatedAt : Date
+    updatedAt : Date | null
     createAt : Date
 }

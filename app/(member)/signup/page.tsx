@@ -3,21 +3,74 @@ import { Col, Button, Row, Container, Card, Form } from 'react-bootstrap';
 import TOKAMAK_ICON from '@/public/assets/tn_logo.svg'
 import Image from 'next/image';
 import {useState} from "react";
+import { member } from "@/app/_types/member"
 
 export default function Signup() {
-  const [value, setValue] = useState("");
+  
+  //  id useState
+  const [idValue, setIdValue] = useState("tyrannojung");
+  const [nameValue, setNameValue] = useState("dawoon jung");
+  const [pbkValue, setPbkValue] = useState("0x84207aCCB87EC578Bef5f836aeC875979C1ABA85");
+  const [emailValue, setEmailValue] = useState("tyrannojung@korea.ac.kr");
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(value);
+    console.log(idValue, nameValue, pbkValue, emailValue);
+    
+    const member_info : member = {
+        id : idValue,
+        publicKey : pbkValue,
+        email : emailValue,
+        name : nameValue,
+        updatedAt : null,
+        createAt : new Date()
+    } 
+    const options = {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(member_info)
+  }
+   
+  const resp = await fetch('/api/member/signup/', options);
+    const data = await resp.json()
+    if(data.result == "success") {
+      console.log('어디론가 이동');
+    }
+
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const idChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const {
       currentTarget: { value },
     } = event;
-    setValue(value);
-    console.log(value)
+    setIdValue(value);
+    
+  }
+
+  const nameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const {
+      currentTarget: { value },
+    } = event;
+    setNameValue(value);
+    
+  }
+
+  const pbkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const {
+      currentTarget: { value },
+    } = event;
+    setPbkValue(value);
+    
+  }
+
+  const emailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const {
+      currentTarget: { value },
+    } = event;
+    setEmailValue(value);
+    
   }
 
   return (
@@ -34,35 +87,43 @@ export default function Signup() {
                     </h2>
                     <div className="mb-3">
                       <Form  onSubmit={onSubmit}>
-                        <Form.Group className="mb-3" controlId="Name">
+                        
+                        <Form.Group className="mb-3" controlId="ID">
+                          <Form.Label className="text-center">
+                            ID
+                          </Form.Label>
+                          <Form.Control type="text" placeholder="Enter ID" onChange={idChange} value={idValue} />
+                        </Form.Group>
+
+
+                        <Form.Group className="mb-3" controlId="formBasicEmail">
                           <Form.Label className="text-center">
                             Name
                           </Form.Label>
-                          <Form.Control type="text" placeholder="Enter Name" onChange={handleChange} value={value} />
+                          <Form.Control type="text" placeholder="Enter Name" onChange={nameChange} value={nameValue} />
                         </Form.Group>
+
+
+                        <Form.Group className="mb-3" controlId="formBasicPublicKey">
+                          <Form.Label className="text-center">
+                            Public Key
+                          </Form.Label>
+                          <Form.Control type="text" placeholder="Enter publicKey" onChange={pbkChange} value={pbkValue}/>
+                        </Form.Group>
+
                         <Form.Group className="mb-3" controlId="formBasicEmail">
                           <Form.Label className="text-center">
                             Email address
                           </Form.Label>
-                          <Form.Control type="email" placeholder="Enter email" />
+                          <Form.Control type="email" placeholder="Enter email" onChange={emailChange} value={emailValue}/>
                         </Form.Group>
-                        <Form.Group
-                          className="mb-3"
-                          controlId="formBasicPassword"
-                        >
-                          <Form.Label>Password</Form.Label>
-                          <Form.Control type="password" placeholder="Password" />
-                        </Form.Group>
-                        <Form.Group
-                          className="mb-3"
-                          controlId="formBasicCheckbox"
-                        >
-                        </Form.Group>
+
                         <div className="d-grid">
                           <Button variant="primary" type="submit">
                             Create Account
                           </Button>
                         </div>
+
                       </Form>
                       <div className="mt-3">
                         <p className="mb-0  text-center">

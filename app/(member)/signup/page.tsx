@@ -2,20 +2,22 @@
 import { Col, Button, Row, Container, Card, Form } from 'react-bootstrap';
 import TOKAMAK_ICON from '@/public/assets/tn_logo.svg'
 import Image from 'next/image';
+
 import {useState} from "react";
 import { member } from "@/app/_types/member"
+import { useRouter } from 'next/navigation';
 
 export default function Signup() {
   
-  //  id useState
+  const router = useRouter();
   const [idValue, setIdValue] = useState("tyrannojung");
   const [nameValue, setNameValue] = useState("dawoon jung");
   const [pbkValue, setPbkValue] = useState("0x84207aCCB87EC578Bef5f836aeC875979C1ABA85");
   const [emailValue, setEmailValue] = useState("tyrannojung@korea.ac.kr");
+  
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(idValue, nameValue, pbkValue, emailValue);
     
     const member_info : member = {
         id : idValue,
@@ -25,6 +27,7 @@ export default function Signup() {
         updatedAt : null,
         createAt : new Date()
     } 
+
     const options = {
       method: 'POST',
       headers: {
@@ -36,7 +39,8 @@ export default function Signup() {
   const resp = await fetch('/api/member/signup/', options);
     const data = await resp.json()
     if(data.result == "success") {
-      console.log('어디론가 이동');
+      router.push('/');
+      router.refresh();
     }
 
   };

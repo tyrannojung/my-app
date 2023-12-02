@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import './css/globals.css'
-import { Container, SSRProvider } from '@/util/bootstrap';
+import { Container } from '@/util/bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 // import '../styles/globals.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -42,14 +42,12 @@ export default function RootLayout({
   return (
     <html>
       <body>
-        <SSRProvider>
           <Header />
           <main>
             <Container className="py-4">
               {children}
             </Container>
           </main>
-        </SSRProvider>
       </body>
     </html>
   )

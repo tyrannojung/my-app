@@ -11,7 +11,7 @@ export default async function handler(
             const db = (await connectDB).db("forum")
             let result : member | null = await db.collection('member').findOne<member>(req.body)
             if(result){
-                return res.status(200).json({ result : "success" })
+                return res.status(200).json({ result : "success", value: result })
             } 
             return res.status(500).json({ result : "false", reason: "login fail" })
         } catch (error) {

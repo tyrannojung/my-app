@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { Fragment } from "react";
+import { useSession, signIn, signOut } from 'next-auth/react';
 
 const navItemList = [
     {
@@ -45,6 +46,9 @@ const navItemList = [
 
 
 export default function Header() {
+
+    const { data: session } = useSession();
+
     return (
         <Navbar expand="lg" className="bg-body-tertiary">
         <Container>
@@ -83,15 +87,20 @@ export default function Header() {
             </Nav>
           </Navbar.Collapse>
           <Navbar.Collapse className="justify-content-end">
-            
-            <Nav.Link as={Link} href="/signup">Signup</Nav.Link>
-            <Nav.Link as={Link} href="/signin">Login</Nav.Link>
-
-            <NavDropdown title={<FontAwesomeIcon icon={faUser} />} id="basic-nav-dropdown1">
-              <NavDropdown.Item as={Link} href="">Mypage</NavDropdown.Item>
-              <NavDropdown.Divider />  
-              <NavDropdown.Item as={Link} href="">Sign Out</NavDropdown.Item>
-            </NavDropdown>
+            {
+              session && session.user
+              ?
+              <NavDropdown title={<FontAwesomeIcon icon={faUser} />} id="basic-nav-dropdown1">
+                <NavDropdown.Item as={Link} href="">Mypage</NavDropdown.Item>
+                <NavDropdown.Divider />  
+                <NavDropdown.Item onClick={() => signOut({ callbackUrl: '/' })}>Sign Out</NavDropdown.Item>
+              </NavDropdown>
+              :
+              <>
+                <Nav.Link as={Link} href="/signup">Signup</Nav.Link>
+                <Nav.Link as={Link} href="/signin">Login</Nav.Link>
+              </>
+            }            
           </Navbar.Collapse>
         </Container>
       </Navbar>

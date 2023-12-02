@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Footer from "@/app/_components/Footer";
 import Header from './_components/Header';
+import Providers from "./_components/Providers";
 
 
 export const metadata: Metadata = {
@@ -42,12 +43,14 @@ export default function RootLayout({
   return (
     <html>
       <body>
+        <Providers>
           <Header />
           <main>
             <Container className="py-4">
               {children}
             </Container>
           </main>
+          </Providers>
       </body>
     </html>
   )

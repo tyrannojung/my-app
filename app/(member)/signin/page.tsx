@@ -6,6 +6,7 @@ import Image from 'next/image';
 import {useState} from "react";
 import { member } from "@/app/_types/member"
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react'
 
 export default function Signin() {
   
@@ -21,20 +22,30 @@ export default function Signin() {
         publicKey : pbkValue
     } 
 
-    const options = {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(member_info)
-  }
+  //   const options = {
+  //     method: 'POST',
+  //     headers: {
+  //         'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify(member_info)
+  // }
    
-  const resp = await fetch('/api/member/signin/', options);
-    const data = await resp.json()
-    if(data.result == "success") {
-      router.push('/');
-      router.refresh();
-    }
+  // const resp = await fetch('/api/member/signin/', options);
+  // const data = await resp.json()
+  // if(data.result == "success") {
+  //     router.push('/');
+  //     router.refresh();
+  // }
+
+    const result = await signIn("credentials", {
+      id: member_info.id,
+      publicKey: member_info.publicKey,
+      redirect: true,
+      callbackUrl: "/",
+    });
+
+    console.log(result);
+
 
   };
 

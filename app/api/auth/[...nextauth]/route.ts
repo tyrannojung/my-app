@@ -2,6 +2,7 @@ import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 
 const handler = NextAuth({
+  secret: process.env.NEXTAUTH_URL,
   providers: [
     CredentialsProvider({
       // 이 부분은 자체 로그인 로직을 구현합니다.

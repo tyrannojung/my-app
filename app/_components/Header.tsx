@@ -6,7 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { Fragment } from "react";
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
+import Spinner from 'react-bootstrap/Spinner';
 
 const navItemList = [
     {
@@ -47,7 +48,7 @@ const navItemList = [
 
 export default function Header() {
 
-    const { data: session } = useSession();
+    const { status, data: session } = useSession();
 
     return (
         <Navbar expand="lg" className="bg-body-tertiary">
@@ -88,6 +89,9 @@ export default function Header() {
           </Navbar.Collapse>
           <Navbar.Collapse className="justify-content-end">
             {
+              status === "loading"
+              ? <Spinner animation="grow" variant="primary" />
+              :
               session && session.user
               ?
               <NavDropdown title={<FontAwesomeIcon icon={faUser} />} id="basic-nav-dropdown1">

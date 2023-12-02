@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Footer from "@/app/_components/Footer";
 import Header from './_components/Header';
-import Providers from "./_components/Providers";
+import AuthSession from "./_components/Providers";
 
 
 export const metadata: Metadata = {
@@ -40,17 +40,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
 
+  
   return (
     <html>
       <body>
-        <Providers>
+        <AuthSession>
           <Header />
-          <main>
             <Container className="py-4">
               {children}
             </Container>
-          </main>
-          </Providers>
+          </AuthSession>
       </body>
     </html>
   )

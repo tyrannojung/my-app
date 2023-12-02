@@ -23,7 +23,7 @@ const handler = NextAuth({
           }),
       }
 
-        const res = await fetch('http://localhost:3000/api/member/signin', options);
+        const res = await fetch(process.env.NEXTAUTH_URL + 'api/member/signin', options);
         const user = await res.json();
 
         if (user) {

@@ -113,7 +113,7 @@ export default function Signin() {
                       <div className="mt-3">
                         <p className="mb-0  text-center">
                           Don't have an account?{" "}
-                          <a href="{''}" className="text-primary fw-bold">
+                          <a href="/signup" className="text-primary fw-bold">
                             Sign Up
                           </a>
                         </p>

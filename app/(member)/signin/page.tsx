@@ -3,7 +3,6 @@ import { Col, Button, Row, Container, Card, Form } from "react-bootstrap";
 import TOKAMAK_ICON from '@/public/assets/tn_logo.svg'
 import Image from 'next/image';
 
-import {useState} from "react";
 import { member } from "@/app/_types/member"
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react'
@@ -18,7 +17,6 @@ export default function Signin() {
 
   const validationSchema = yup.object().shape({
     id: yup.string()
-      //.min(5, 'ID must be at least 5 characters')
       .matches(
         /^(?=.*[a-z])[a-z0-9]{5,20}$/i,
         "Please enter a valid ID following the specified format."
@@ -57,7 +55,10 @@ export default function Signin() {
                router.refresh();
             } else {
               // error 표시
-              setErrors({publicKey: 'invalid login.'});
+              setErrors({
+                id: ' ',
+                publicKey: 'Invalid ID or password'
+              });
             }
 
           }}

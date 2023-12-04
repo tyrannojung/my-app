@@ -8,7 +8,6 @@ import { member } from "@/app/_types/member"
 import * as formik from 'formik';
 import * as yup from 'yup';
 
-
 export default function Signup() {
   
   const { Formik } = formik;
@@ -16,12 +15,45 @@ export default function Signup() {
 
   const validationSchema = yup.object().shape({
     id: yup.string()
-      .min(5, 'ID must be at least 5 characters')
-      .max(20, 'ID must be 20 characters or less')
+      //.min(5, 'ID must be at least 5 characters')
+      .matches(
+        /^(?=.*[a-z])[a-z0-9]{5,20}$/i,
+        "ID must be 5 to 20 characters and can only contain letters and numbers."
+      )
+      .test(
+        {
+          message: 'ID is already taken.',
+          test: async (id) => {
+            if(id){
+              const value : string = id;
+
+              const member_info : member = {
+                id : value,
+              }
+              const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(member_info)
+              } 
+              const resp = await fetch('/api/member/checkDuplicateId/', options);
+              console.log(resp)
+              const data = await resp.json()
+              console.log(data.result)
+                if(data.result) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            return false
+        }
+      })
       .required('Required'),
     publicKey: yup.string()
-      .min(42, 'Must be exactly 42 characters')
-      .max(42, 'Must be exactly 42 characters')
+      .matches(/^0x[a-fA-F0-9]{40}$/, 'Invalid Ethereum public key format')
+      // public key정규표현식을 추가한다.
       .required('Required'),
     email: yup.string()
       .email('Invalid email address')

@@ -38,9 +38,7 @@ export default function Signup() {
                 body: JSON.stringify(member_info)
               } 
               const resp = await fetch('/api/member/checkDuplicateId/', options);
-              console.log(resp)
               const data = await resp.json()
-              console.log(data.result)
                 if(data.result) {
                     return true;
                 } else {
@@ -53,7 +51,6 @@ export default function Signup() {
       .required('Required'),
     publicKey: yup.string()
       .matches(/^0x[a-fA-F0-9]{40}$/, 'Invalid Ethereum public key format')
-      // public key정규표현식을 추가한다.
       .required('Required'),
     email: yup.string()
       .email('Invalid email address')
@@ -89,7 +86,7 @@ export default function Signup() {
           updatedAt : null,
           createAt : new Date()
         }
-        console.log(values) 
+
         const options = {
           method: 'POST',
           headers: {
@@ -97,7 +94,6 @@ export default function Signup() {
           },
           body: JSON.stringify(member_info)
         }
-        console.log(options)  
 
         const resp = await fetch('/api/member/signup/', options);
         const data = await resp.json()

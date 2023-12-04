@@ -26,7 +26,7 @@ const handler = NextAuth({
         const res = await fetch(process.env.NEXTAUTH_URL + 'api/member/signin', options);
         const user = await res.json();
 
-        if (user) {
+        if (user.result) {
           // Any object returned will be saved in `user` property of the JWT
           return user;
         } 

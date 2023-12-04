@@ -9,7 +9,7 @@ import * as formik from 'formik';
 import * as yup from 'yup';
 
 
-export default function Signup() {
+export default function Test2() {
   
   const { Formik } = formik;
   const router = useRouter();
@@ -35,6 +35,7 @@ export default function Signup() {
       )
       .required('Required'),
   });
+  
   
   return (
     <Formik

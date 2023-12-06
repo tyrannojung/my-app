@@ -20,8 +20,11 @@ type User = {
 };
 
 export const findUser = async (email: string): Promise<User | null> => {
+  console.log(`${userPrefix}${email}`);
+  const aaa = await kv.get<User>('nextjs-webauthn-example-user-tyrannojung@naver.com1231234');
+  console.log(aaa)
   const user = await kv.get<User>(`${userPrefix}${email}`);
-
+  console.log(user)
   return user;
 };
 
@@ -34,8 +37,12 @@ export const createUser = async (
   if (user) {
     throw new Error("User already exists");
   }
-
+  console.log("======>")
+  console.log(`${userPrefix}${email}`)
   await kv.set(`${userPrefix}${email}`, { email, devices });
+  const aaa = await kv.get<User>(`${userPrefix}${email}`);
+  console.log("======>")
+  console.log(aaa)
   return { email, devices };
 };
 

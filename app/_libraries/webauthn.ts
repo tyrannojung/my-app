@@ -125,6 +125,7 @@ export const verifyWebAuthnRegistration = async (
 
 export const generateWebAuthnLoginOptions = async (email: string) => {
   const user = await findUser(email);
+  console.log(user)
 
   if (!user) {
     return {

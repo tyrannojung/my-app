@@ -11,7 +11,15 @@ import {
   verifyWebAuthnRegistration,
 } from "@/app/_libraries/webauthn";
 import styles from "./page.module.css";
-
+import { kv } from "@vercel/kv";
+import { AuthenticatorDevice } from "@simplewebauthn/typescript-types";
+export type UserDevice = Omit<
+AuthenticatorDevice,
+"credentialPublicKey" | "credentialID"
+> & {
+credentialID: string;
+credentialPublicKey: string;
+};
 export default function Home() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -42,22 +50,31 @@ export default function Home() {
 
       alert("Registration successful!");
     } else {
-      const response = await generateWebAuthnLoginOptions(email);
 
-      if (!response.success || !response.data) {
-        alert(response.message ?? "Something went wrong!");
-        return;
-      }
+      type User = {
+        email: string;
+        devices: UserDevice[];
+      };
+      const aaa = await kv.get<User>('nextjs-webauthn-example-user-tyrannojung@naver.com1231234');
+      console.log(aaa)
+      // const response = await generateWebAuthnLoginOptions(email);
 
-      const localResponse = await startAuthentication(response.data);
-      const verifyResponse = await verifyWebAuthnLogin(localResponse);
+      // if (!response.success || !response.data) {
+      //   alert(response.message ?? "Something went wrong!");
+      //   return;
+      // }
 
-      if (!verifyResponse.success) {
-        alert(verifyResponse.message ?? "Something went wrong!");
-        return;
-      }
+      // const localResponse = await startAuthentication(response.data);
+      // console.log(localResponse)
+      // const verifyResponse = await verifyWebAuthnLogin(localResponse);
+      // console.log(verifyResponse)
 
-      alert("Login successful!");
+      // if (!verifyResponse.success) {
+      //   alert(verifyResponse.message ?? "Something went wrong!");
+      //   return;
+      // }
+
+      // console.log("Login successful!");
     }
   };
 

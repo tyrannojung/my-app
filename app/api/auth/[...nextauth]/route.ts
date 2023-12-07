@@ -1,5 +1,7 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
+import { member } from "@/app/_types/member"
+
 
 const handler = NextAuth({
   secret: process.env.NAXTAUTH_SECRET,
@@ -11,7 +13,9 @@ const handler = NextAuth({
         publicKey: { label: 'PublicKey',  type: 'text' }
       },
 
+
       async authorize(credentials, req) {
+        console.log("=-=========>")
         const options = {
           method: 'POST',
           headers: {
@@ -21,9 +25,8 @@ const handler = NextAuth({
             id: credentials?.id,
             publicKey: credentials?.publicKey,
           }),
-      }
-
-        const res = await fetch(process.env.NEXTAUTH_URL + 'api/member/signin', options);
+        }
+        const res = await fetch('http://localhost:3000/api/member/signin', options);
         const user = await res.json();
 
         if (user.result) {

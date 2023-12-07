@@ -1,9 +1,10 @@
 import { AuthenticatorDevice } from "@simplewebauthn/typescript-types";
 import { kv } from "@vercel/kv";
 import { cookies } from "next/headers";
+import { member } from "@/app/_types/member"
 
-const userPrefix = "nextjs-webauthn-example-user-";
 const sessionPrefix = "nextjs-webauthn-example-session-";
+
 
 // The original types are "Buffer" which is not supported by KV
 export type UserDevice = Omit<
@@ -19,32 +20,41 @@ type User = {
   devices: UserDevice[];
 };
 
-export const findUser = async (email: string): Promise<User | null> => {
-  console.log(`${userPrefix}${email}`);
-  const aaa = await kv.get<User>('nextjs-webauthn-example-user-tyrannojung@naver.com1231234');
-  console.log(aaa)
-  const user = await kv.get<User>(`${userPrefix}${email}`);
-  console.log(user)
+export const findUser = async (email: string) => {
+  const info = {
+    info : `${email}`
+} 
+  const user2 = await fetch('http://localhost:3000/api/authapi/check/' + JSON.stringify(info), {cache: 'no-store'});
+  const user: User = await user2.json();
+
+  //const user = await kv.get<User>(`${userPrefix}${email}`);
+  //console.log(user)
+
   return user;
 };
 
-export const createUser = async (
-  email: string,
-  devices: UserDevice[]
-): Promise<User> => {
-  const user = await findUser(email);
+// export const createUser = async (
+//   email: string,
+//   devices: UserDevice[]
+// ): Promise<User> => {
+//   console.log("create User=========>")
+//   const user = await findUser(email);
+//   console.log(user)
 
-  if (user) {
-    throw new Error("User already exists");
-  }
-  console.log("======>")
-  console.log(`${userPrefix}${email}`)
-  await kv.set(`${userPrefix}${email}`, { email, devices });
-  const aaa = await kv.get<User>(`${userPrefix}${email}`);
-  console.log("======>")
-  console.log(aaa)
-  return { email, devices };
-};
+//   if (user) {
+//     throw new Error("User already exists");
+//   }
+//   const user1 : member = {
+//     email : email,
+//     devices : devices
+//   }
+//   console.log("new ======user1")
+//   console.log(user1)
+
+//   await fetch('http://localhost:3000/api/authapi/create/' + JSON.stringify(user1), {cache: 'no-store'});
+//   return { email, devices };
+  
+// };
 
 type SessionData = {
   currentChallenge?: string;
@@ -52,11 +62,19 @@ type SessionData = {
 };
 
 export const getSession = async (id: string) => {
-  return kv.get<SessionData>(`${sessionPrefix}${id}`);
+  const session = kv.get<SessionData>(`${sessionPrefix}${id}`);
+  const get_session = await session;
+  console.log("success set session ====> ")
+  console.log(get_session)
+  return get_session;
 };
 
 export const createSession = async (id: string, data: SessionData) => {
-  return kv.set(`${sessionPrefix}${id}`, JSON.stringify(data));
+  const session = kv.set(`${sessionPrefix}${id}`, JSON.stringify(data));
+  const get_session = await session;
+  console.log("success set session ====> ")
+  console.log(get_session)
+  return get_session;
 };
 
 export const getCurrentSession = async (): Promise<{

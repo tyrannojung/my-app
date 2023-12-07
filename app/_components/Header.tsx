@@ -101,8 +101,8 @@ export default function Header() {
               </NavDropdown>
               :
               <>
-                <Nav.Link as={Link} href="/signup">Signup</Nav.Link>
-                <Nav.Link as={Link} href="/signin">Login</Nav.Link>
+                <Nav.Link as={Link} href="/signupupdate">Signup</Nav.Link>
+                <Nav.Link as={Link} href="/signinupdate">Login</Nav.Link>
               </>
             }            
           </Navbar.Collapse>

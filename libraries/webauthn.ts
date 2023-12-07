@@ -12,7 +12,6 @@ import {
 } from "@simplewebauthn/server";
 import {
   UserDevice,
-  createUser,
   findUser,
   getCurrentSession,
   updateCurrentSession,
@@ -24,8 +23,12 @@ import {
 } from "@simplewebauthn/typescript-types";
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
 
+import { kv } from "@vercel/kv";
+
+
 export const generateWebAuthnRegistrationOptions = async (email: string) => {
   const user = await findUser(email);
+  console.log(user)
 
   if (user) {
     return {
@@ -84,6 +87,7 @@ export const verifyWebAuthnRegistration = async (
     expectedRPID: rpId,
     requireUserVerification: false,
   };
+
   const verification = await verifyRegistrationResponse(opts);
 
   const { verified, registrationInfo } = verification;
@@ -108,25 +112,17 @@ export const verifyWebAuthnRegistration = async (
   };
 
   await updateCurrentSession({});
-
-  try {
-    await createUser(email, [newDevice]);
-  } catch {
-    return {
-      success: false,
-      message: "User already exists",
-    };
-  }
+  console.log("create 타제??")
 
   return {
     success: true,
+    value : newDevice
   };
 };
 
 export const generateWebAuthnLoginOptions = async (email: string) => {
   const user = await findUser(email);
   console.log(user)
-
   if (!user) {
     return {
       success: false,
@@ -144,6 +140,7 @@ export const generateWebAuthnLoginOptions = async (email: string) => {
     userVerification: "required",
     rpID: rpId,
   };
+
   const options = await generateAuthenticationOptions(opts);
 
   await updateCurrentSession({ currentChallenge: options.challenge, email });
@@ -151,6 +148,7 @@ export const generateWebAuthnLoginOptions = async (email: string) => {
   return {
     success: true,
     data: options,
+    user: user
   };
 };
 

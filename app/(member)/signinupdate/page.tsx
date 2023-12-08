@@ -102,7 +102,7 @@ export default function Signin() {
                               </Form.Label>
                             <Form.Control
                               type="text"
-                              name="id"
+                              name="email"
                               value={values.email}
                               onChange={handleChange}
                               isValid={touched.email && !errors.email}

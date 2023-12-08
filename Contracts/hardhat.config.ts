@@ -2,6 +2,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import fs from "fs";
 import "@nomicfoundation/hardhat-toolbox";
 import "@nomicfoundation/hardhat-foundry";
+import "hardhat-preprocessor";
 
 function getRemappings() {
   return fs

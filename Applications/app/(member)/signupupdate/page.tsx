@@ -19,6 +19,9 @@ import {
   verifyWebAuthnRegistration,
 } from "@/libraries/webauthn";
 
+import base64url from 'base64url';
+import { decodeRegistrationCredential } from '../_debugger/decodeRegistrationCredential';
+import { v4 as uuid } from 'uuid';
 
 export default function Signup() {
   
@@ -115,19 +118,74 @@ export default function Signup() {
       onSubmit={async (values, { setSubmitting }) => {
         setSubmitting(true); // 비동기통신
         
-        const response = await generateWebAuthnRegistrationOptions(values.email);
-        console.log(response)
+        // const response = await generateWebAuthnRegistrationOptions(values.email);
+        // console.log(response)
 
-        if (!response.success || !response.data) {
-          alert(response.message ?? "Something went wrong!");
-          return;
-        }
+        // if (!response.success || !response.data) {
+        //   alert(response.message ?? "Something went wrong!");
+        //   return;
+        // }
 
-        const localResponse = await startRegistration(response.data);
-        console.log(localResponse)
+        // const localResponse = await startRegistration(response.data);
+        
+        
+        const passkey = await startRegistration({
+          rp: {
+            name: 'WebAuthn.io (Dev)',
+            id: 'localhost',
+          },
+          user: {
+            id: base64url.encode(uuid()),
+            name: 'tyrannojung123aa',
+            displayName: 'klkll',
+          },
+          challenge: base64url.encode('An1cesPIDEGR9nKlNHxiWsQwivEvTeT6EaIytgFULQ0'),
+          pubKeyCredParams: [
+            {
+              type: 'public-key',
+              alg: -7,
+            },
+          ],
+          timeout: 60000,
+          authenticatorSelection: {
+            residentKey: "discouraged",
+          },
+          excludeCredentials: [],
+          attestation: 'direct',
+        });
+  
+        console.log(passkey);      
+        
+           
+        
+        
+        
+        console.log(passkey)
+        const credId = `0x${base64url.toBuffer(passkey.id).toString('hex')}`;
+        console.log(credId);
+        const decodedPassKey = decodeRegistrationCredential(passkey);
+        console.log('decoded webauthn response', decodedPassKey);
+        const supportsDirectAttestation = !!decodedPassKey.response.attestationObject.attStmt.sig;
+        console.log({ supportsDirectAttestation });
+        const pubKeyCoordinates = [
+          '0x' +
+          base64url
+            .toBuffer(decodedPassKey.response.attestationObject.authData.parsedCredentialPublicKey?.x || '')
+            .toString('hex'),
+          '0x' +
+          base64url
+            .toBuffer(decodedPassKey.response.attestationObject.authData.parsedCredentialPublicKey?.y || '')
+            .toString('hex'),
+        ];
+        console.log(pubKeyCoordinates);
+
+        return
 
         const verifyResponse = await verifyWebAuthnRegistration(localResponse);
         console.log(verifyResponse)
+        
+        
+      
 
         if (verifyResponse.value) {
           const member_info : member = {

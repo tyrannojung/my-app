@@ -21,6 +21,7 @@ import {
 
 import base64url from 'base64url';
 import { decodeRegistrationCredential } from '../_debugger/decodeRegistrationCredential';
+import { authResponseToSigVerificationInput } from '../_debugger/authResponseToSigVerificationInput';
 import { v4 as uuid } from 'uuid';
 
 export default function Signup() {
@@ -129,31 +130,6 @@ export default function Signup() {
         const passkey = await startRegistration(response.data);
         
         
-        // const passkey = await startRegistration({
-        //   rp: {
-        //     name: 'WebAuthn.io (Dev)',
-        //     id: 'localhost',
-        //   },
-        //   user: {
-        //     id: base64url.encode(uuid()),
-        //     name: 'tyrannojung123aa',
-        //     displayName: 'klkll',
-        //   },
-        //   challenge: base64url.encode('An1cesPIDEGR9nKlNHxiWsQwivEvTeT6EaIytgFULQ0'),
-        //   pubKeyCredParams: [
-        //     {
-        //       type: 'public-key',
-        //       alg: -7,
-        //     },
-        //   ],
-        //   timeout: 60000,
-        //   authenticatorSelection: {
-        //     residentKey: "discouraged",
-        //   },
-        //   excludeCredentials: [],
-        //   attestation: 'direct',
-        // });
-        
         console.log(passkey)
         const credId = `0x${base64url.toBuffer(passkey.id).toString('hex')}`;
         console.log(credId);
@@ -172,6 +148,35 @@ export default function Signup() {
             .toString('hex'),
         ];
         console.log(pubKeyCoordinates);
+
+        const ecVerifyInputs = authResponseToSigVerificationInput(
+          decodedPassKey.response.attestationObject.authData.parsedCredentialPublicKey,
+          {
+            authenticatorData: decodedPassKey.response.authenticatorData!,
+            clientDataJSON: passkey.response.clientDataJSON,
+            signature: decodedPassKey.response.attestationObject.attStmt.sig!,
+          },
+        );
+        console.log('verify inputs', ecVerifyInputs);
+        
+        return
+
+
+        const challengeOffsetRegex = new RegExp(`(.*)${Buffer.from(encodedChallenge).toString('hex')}`);
+        const challengePrefix = challengeOffsetRegex.exec(
+          base64url.toBuffer(passkey.response.clientDataJSON).toString('hex'),
+        )?.[1];
+        console.log({ challengeOffsetRegex, challengePrefix });
+
+        console.log('webauthn verify inputs', [
+          decodedPassKey.response.attestationObject.authData.flagsMask,
+          `0x${base64url.toBuffer(passkey.response.authenticatorData!).toString('hex')}`,
+          `0x${base64url.toBuffer(passkey.response.clientDataJSON).toString('hex')}`,
+          Buffer.from(challengePrefix || '', 'hex').length,
+          ecVerifyInputs.signature[0],
+          ecVerifyInputs.signature[1],
+        ]);
+
 
         return
 

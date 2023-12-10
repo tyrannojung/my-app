@@ -22,37 +22,9 @@ import {
 import base64url from 'base64url';
 import { decodeRegistrationCredential } from '../_debugger/decodeRegistrationCredential';
 import { authResponseToSigVerificationInput } from '../_debugger/authResponseToSigVerificationInput';
-import { Address, Hash, concat, createClient, createPublicClient, encodeFunctionData, http, Hex } from "viem"
-import { ethers } from 'ethers';
-
-import { UserOperation, bundlerActions, getSenderAddress, getUserOperationHash, GetUserOperationReceiptReturnType } from "permissionless"
-import { pimlicoBundlerActions, pimlicoPaymasterActions } from "permissionless/actions/pimlico"
-import { generatePrivateKey, privateKeyToAccount, signMessage } from "viem/accounts"
-import { lineaTestnet, polygonMumbai } from "viem/chains"
-
 
 export default function Signup() {
   
-  const publicClient = createPublicClient({
-    transport: http("https://rpc.goerli.linea.build/"),
-    chain: lineaTestnet
-  })
-   
-  const chain = "linea-testnet" // find the list of chain names on the Pimlico verifying paymaster reference page
-  const apiKey = "a76e8d51-4ce4-4df3-88f7-ada0402502b2" // REPLACE THIS
-   
-  const bundlerClient = createClient({
-    transport: http(`https://api.pimlico.io/v1/${chain}/rpc?apikey=${apiKey}`),
-    chain: lineaTestnet
-  }).extend(bundlerActions).extend(pimlicoBundlerActions)
-   
-  const paymasterClient = createClient({
-    // ⚠️ using v2 of the API ⚠️ 
-    transport: http(`https://api.pimlico.io/v2/${chain}/rpc?apikey=${apiKey}`),
-    chain: lineaTestnet
-  }).extend(pimlicoPaymasterActions)
-
-
   const { Formik } = formik;
   const router = useRouter();
 

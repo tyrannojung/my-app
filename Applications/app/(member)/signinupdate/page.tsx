@@ -26,8 +26,18 @@ import base64url from 'base64url';
 import { decodeAuthenticationCredential } from '../_debugger/decodeAuthenticationCredential';
 import { authResponseToSigVerificationInput } from '../_debugger/authResponseToSigVerificationInput';
 
+import { Address, Hash, concat, createClient, createPublicClient, encodeFunctionData, http, Hex } from "viem"
+import { ethers } from 'ethers';
+
+import { UserOperation, bundlerActions, getSenderAddress, getUserOperationHash, GetUserOperationReceiptReturnType } from "permissionless"
+import { pimlicoBundlerActions, pimlicoPaymasterActions } from "permissionless/actions/pimlico"
+import { generatePrivateKey, privateKeyToAccount, signMessage } from "viem/accounts"
+import { lineaTestnet, polygonMumbai } from "viem/chains"
+
+import { bundlerCall } from "./_webauthn/bundlerCall";
+
 export default function Signin() {
-  
+
   const { Formik } = formik;
   const router = useRouter();
 
@@ -47,15 +57,33 @@ export default function Signin() {
           onSubmit={async (values, {setErrors, setSubmitting }) => {
             setSubmitting(true); // 비동기통신
             
-          const response = await generateWebAuthnLoginOptions(values.email);
-          if (!response.success || !response.data) {
+          const challenge = "0x014c5da4a29ee4f34063a0aa1c0a9090bd0340b954d6d466b4e8c6cdc946d129";
+          console.log(challenge)
+          const challenge2 = Buffer.from(challenge.slice(2), 'hex');
+          console.log(challenge2)
+          const challeng3 = base64url.encode(challenge2);
+          console.log(challeng3)
+
+          const response = await generateWebAuthnLoginOptions(values.email, challeng3);
+          if (!response.success || !response.data || !response.user) {
             console.log(response.message ?? "Something went wrong!");
             return;
           }
-          console.log(response.user)
-          
 
-          const signatureResponse = await startAuthentication(response.data);
+          const uservalue : member = response.user;
+
+          console.log(uservalue)
+          console.log(response.data)
+
+          //const aa = bundlerCall(uservalue);
+          //console.log(aa);
+
+
+          const signatureResponse = await startAuthentication({
+            challenge: response.data.challenge,
+            allowCredentials: response.data.allowCredentials,
+          });
+
           console.log(signatureResponse)
 
           const credId = `0x${base64url.toBuffer(signatureResponse.id).toString('hex')}`;
@@ -69,37 +97,32 @@ export default function Signin() {
           console.log('verify inputs', ecVerifyInputs);
         
           console.log('webauthn verify inputs', [
-            ecVerifyInputs.signature[0],
-            ecVerifyInputs.signature[1],
+            ecVerifyInputs.messageHash,
+            ecVerifyInputs.signature,
           ]);
 
-
+          const p256sig = ethers.utils.defaultAbiCoder.encode(
+            ["bytes32", "uint256[2]"],
+            [
+              ecVerifyInputs.messageHash,
+              ecVerifyInputs.signature
+            ],
+          )
+          
+          console.log(p256sig)
+          // 해당 sig를 useroperation에 추가한다.
+          
 
           return
-          const supportsDirectAttestation = !!decodedPassKey.response.attestationObject.attStmt.sig;
-          console.log({ supportsDirectAttestation });
-          const pubKeyCoordinates = [
-            '0x' +
-            base64url
-              .toBuffer(decodedPassKey.response.attestationObject.authData.parsedCredentialPublicKey?.x || '')
-              .toString('hex'),
-            '0x' +
-            base64url
-              .toBuffer(decodedPassKey.response.attestationObject.authData.parsedCredentialPublicKey?.y || '')
-              .toString('hex'),
-          ];
-          console.log(pubKeyCoordinates)
 
-
-
-
-          const verifyResponse = await verifyWebAuthnLogin(localResponse);
+          const verifyResponse = await verifyWebAuthnLogin(signatureResponse);
           console.log(verifyResponse)
           
           if (!verifyResponse.success) {
             alert(verifyResponse.message ?? "Something went wrong!");
             return;
           }
+
           return
           
           const response_value : member = response.user;

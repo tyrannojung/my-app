@@ -4,12 +4,14 @@ pragma solidity ^0.8.12;
 /* solhint-disable avoid-low-level-calls */
 /* solhint-disable no-inline-assembly */
 /* solhint-disable reason-string */
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+
+import "../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
+import "../lib/openzeppelin-contracts/contracts/proxy/utils/Initializable.sol";
+import "../lib/openzeppelin-contracts/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import "../core/BaseAccount.sol";
 import "./callback/TokenCallbackHandler.sol";
+import {P256} from "../account/lib/P256.sol";
 
 /**
   * minimal account.
@@ -17,10 +19,11 @@ import "./callback/TokenCallbackHandler.sol";
   *  has execute, eth handling methods
   *  has a single signer that can send requests through the entryPoint.
   */
-contract Fido2Account is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Initializable {
+contract SimpleAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Initializable {
     using ECDSA for bytes32;
 
     address public owner;
+    uint256[2] public public_key_coordinates;
 
     IEntryPoint private immutable _entryPoint;
 
@@ -81,12 +84,13 @@ contract Fido2Account is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Ini
      * a new implementation of SimpleAccount must be deployed with the new EntryPoint address, then upgrading
       * the implementation by calling `upgradeTo()`
      */
-    function initialize(address anOwner) public virtual initializer {
-        _initialize(anOwner);
+    function initialize(address anOwner, uint256[2] memory anPubkCoordinates) public virtual initializer {
+        _initialize(anOwner, anPubkCoordinates);
     }
 
-    function _initialize(address anOwner) internal virtual {
+    function _initialize(address anOwner, uint256[2] memory anPubkCoordinate) internal virtual {
         owner = anOwner;
+        public_key_coordinates = anPubkCoordinate;
         emit SimpleAccountInitialized(_entryPoint, owner);
     }
 
@@ -98,11 +102,42 @@ contract Fido2Account is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Ini
     /// implement template method of BaseAccount
     function _validateSignature(UserOperation calldata userOp, bytes32 userOpHash)
     internal override virtual returns (uint256 validationData) {
-        bytes32 hash = userOpHash.toEthSignedMessageHash();
-        if (owner != hash.recover(userOp.signature))
-            return SIG_VALIDATION_FAILED;
+
+        (
+            bytes32 memory messageHash,
+            uint256[2] memory sigCoordinates
+        )
+        = _parseLoginServiceData(userOp.signature);
+
+        bool res = P256.verifySignatureAllowMalleability(
+            messageHash,
+            sigCoordinates[0],
+            sigCoordinates[1],
+            public_key_coordinates[0],
+            public_key_coordinates[1]
+        );
+
+        assertEq(res, true);
+
+        res = P256.verifySignature(hash, r, s, pubKey[0], pubKey[1]);
+        assertEq(res, true);
+
         return 0;
     }
+
+    function _parseLoginServiceData(bytes memory loginServiceData)
+        internal
+        pure
+        returns (
+            bytes32 messageHash,
+            uint256[2] memory sigCoordinates
+        )
+    {
+        return abi.decode(loginServiceData, (bytes32, uint256[2]));
+    }
+
+
+
 
     function _call(address target, uint256 value, bytes memory data) internal {
         (bool success, bytes memory result) = target.call{value : value}(data);
@@ -141,3 +176,4 @@ contract Fido2Account is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Ini
         _onlyOwner();
     }
 }
+

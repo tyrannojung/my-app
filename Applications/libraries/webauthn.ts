@@ -23,8 +23,6 @@ import {
 } from "@simplewebauthn/typescript-types";
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
 
-import { kv } from "@vercel/kv";
-
 
 export const generateWebAuthnRegistrationOptions = async (email: string) => {
   const user = await findUser(email);
@@ -120,7 +118,7 @@ export const verifyWebAuthnRegistration = async (
   };
 };
 
-export const generateWebAuthnLoginOptions = async (email: string) => {
+export const generateWebAuthnLoginOptions = async (email: string, challenge: string) => {
   const user = await findUser(email);
   console.log(user)
   if (!user) {
@@ -141,10 +139,28 @@ export const generateWebAuthnLoginOptions = async (email: string) => {
     rpID: rpId,
   };
 
-  const options = await generateAuthenticationOptions(opts);
+  let options: any = await generateAuthenticationOptions(opts);
 
   await updateCurrentSession({ currentChallenge: options.challenge, email });
+  if(options.allowCredentials){
+    console.log("options", options.allowCredentials[0].id);
+    const opts2 = {
+      challenge: challenge,
+      allowCredentials: [
+        {
+          id: options.allowCredentials[0].id,
+          type: 'public-key',
+          transports: ['internal'],
+        },
+      ],
+    };
 
+    options = opts2
+  }
+  
+  console.log(options)
+  
+  
   return {
     success: true,
     data: options,

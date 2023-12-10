@@ -124,19 +124,19 @@ const sponsorUserOperationResult = await paymasterClient.sponsorUserOperation({
 
 
 /*-----------------------------------------------------------------------------------------*/
-const test11 = { message: 
-  { 
-    raw: getUserOperationHash(
-    { 
-      userOperation: sponsoredUserOperation, 
-      chainId: lineaTestnet.id, 
-      entryPoint: ENTRY_POINT_ADDRESS 
-    }) 
-  } 
-}
+// const test11 = { message: 
+//   { 
+//     raw: getUserOperationHash(
+//     { 
+//       userOperation: sponsoredUserOperation, 
+//       chainId: lineaTestnet.id, 
+//       entryPoint: ENTRY_POINT_ADDRESS 
+//     }) 
+//   } 
+// }
 
-console.log("test!!!!!!!!")
-console.log(test11)
+// console.log("test!!!!!!!!")
+// console.log(test11)
 
   // SIGN THE USER OPERATION
 const signature = await owner.signMessage({ message: 

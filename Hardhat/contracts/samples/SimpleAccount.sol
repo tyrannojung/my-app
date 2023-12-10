@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import "../core/BaseAccount.sol";
 import "./callback/TokenCallbackHandler.sol";
-import {P256} from "../lib/P256.sol";
+import "../lib/P256.sol";
 
 /**
   * minimal account.
@@ -104,7 +104,7 @@ contract SimpleAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, In
     internal override virtual returns (uint256 validationData) {
 
         (
-            bytes32 memory messageHash,
+            bytes32 messageHash,
             uint256[2] memory sigCoordinates
         )
         = _parseLoginServiceData(userOp.signature);
@@ -118,7 +118,7 @@ contract SimpleAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, In
         );
 
         if(res == true) {
-            res = P256.verifySignature(hash, r, s, pubKey[0], pubKey[1]);
+            res = P256.verifySignature(messageHash, sigCoordinates[0], sigCoordinates[1], public_key_coordinates[0], public_key_coordinates[1]);
             if (res == true) {
                 return 0;
             }

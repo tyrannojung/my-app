@@ -22,6 +22,10 @@ import {
 import * as formik from 'formik';
 import * as yup from 'yup';
 
+import base64url from 'base64url';
+import { decodeAuthenticationCredential } from '../_debugger/decodeAuthenticationCredential';
+import { authResponseToSigVerificationInput } from '../_debugger/authResponseToSigVerificationInput';
+
 export default function Signin() {
   
   const { Formik } = formik;
@@ -50,13 +54,62 @@ export default function Signin() {
             return;
           }
 
-          const localResponse = await startAuthentication(response.data);
+          const signatureResponse = await startAuthentication(response.data);
+          console.log(signatureResponse)
+
+          const credId = `0x${base64url.toBuffer(signatureResponse.id).toString('hex')}`;
+          console.log(credId);
+
+          const { response: decodedResponse } = decodeAuthenticationCredential(signatureResponse);
+          console.log('decoded webauthn response', decodedResponse)
+          console.log('chellenge', decodedResponse.clientDataJSON.challenge)
+          
+          const ecVerifyInputs = authResponseToSigVerificationInput({}, signatureResponse.response);
+          console.log('verify inputs', ecVerifyInputs);
+        
+          const challengeOffsetRegex = new RegExp(`(.*)${Buffer.from(base64url.encode(decodedResponse.clientDataJSON.challenge)).toString('hex')}`);
+          const challengePrefix = challengeOffsetRegex.exec(
+            base64url.toBuffer(signatureResponse.response.clientDataJSON).toString('hex'),
+          )?.[1];
+          console.log({ challengeOffsetRegex, challengePrefix });
+        
+          console.log('webauthn verify inputs', [
+            decodedResponse.authenticatorData.flagsMask,
+            `0x${base64url.toBuffer(signatureResponse.response.authenticatorData).toString('hex')}`,
+            `0x${base64url.toBuffer(signatureResponse.response.clientDataJSON).toString('hex')}`,
+            Buffer.from(challengePrefix || '', 'hex').length,
+            ecVerifyInputs.signature[0],
+            ecVerifyInputs.signature[1],
+          ]);
+
+
+
+          return
+          const supportsDirectAttestation = !!decodedPassKey.response.attestationObject.attStmt.sig;
+          console.log({ supportsDirectAttestation });
+          const pubKeyCoordinates = [
+            '0x' +
+            base64url
+              .toBuffer(decodedPassKey.response.attestationObject.authData.parsedCredentialPublicKey?.x || '')
+              .toString('hex'),
+            '0x' +
+            base64url
+              .toBuffer(decodedPassKey.response.attestationObject.authData.parsedCredentialPublicKey?.y || '')
+              .toString('hex'),
+          ];
+          console.log(pubKeyCoordinates)
+
+
+
+
           const verifyResponse = await verifyWebAuthnLogin(localResponse);
+          console.log(verifyResponse)
           
           if (!verifyResponse.success) {
             alert(verifyResponse.message ?? "Something went wrong!");
             return;
           }
+          return
           
           const response_value : member = response.user;
           const result = await signIn("credentials", {

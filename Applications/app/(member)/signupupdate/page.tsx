@@ -22,10 +22,37 @@ import {
 import base64url from 'base64url';
 import { decodeRegistrationCredential } from '../_debugger/decodeRegistrationCredential';
 import { authResponseToSigVerificationInput } from '../_debugger/authResponseToSigVerificationInput';
-import { v4 as uuid } from 'uuid';
+import { Address, Hash, concat, createClient, createPublicClient, encodeFunctionData, http, Hex } from "viem"
+import { ethers } from 'ethers';
+
+import { UserOperation, bundlerActions, getSenderAddress, getUserOperationHash, GetUserOperationReceiptReturnType } from "permissionless"
+import { pimlicoBundlerActions, pimlicoPaymasterActions } from "permissionless/actions/pimlico"
+import { generatePrivateKey, privateKeyToAccount, signMessage } from "viem/accounts"
+import { lineaTestnet, polygonMumbai } from "viem/chains"
+
 
 export default function Signup() {
   
+  const publicClient = createPublicClient({
+    transport: http("https://rpc.goerli.linea.build/"),
+    chain: lineaTestnet
+  })
+   
+  const chain = "linea-testnet" // find the list of chain names on the Pimlico verifying paymaster reference page
+  const apiKey = "a76e8d51-4ce4-4df3-88f7-ada0402502b2" // REPLACE THIS
+   
+  const bundlerClient = createClient({
+    transport: http(`https://api.pimlico.io/v1/${chain}/rpc?apikey=${apiKey}`),
+    chain: lineaTestnet
+  }).extend(bundlerActions).extend(pimlicoBundlerActions)
+   
+  const paymasterClient = createClient({
+    // ⚠️ using v2 of the API ⚠️ 
+    transport: http(`https://api.pimlico.io/v2/${chain}/rpc?apikey=${apiKey}`),
+    chain: lineaTestnet
+  }).extend(pimlicoPaymasterActions)
+
+
   const { Formik } = formik;
   const router = useRouter();
 
@@ -148,6 +175,57 @@ export default function Signup() {
             .toString('hex'),
         ];
         console.log(pubKeyCoordinates);
+        
+        console.log('input data', [
+          credId,
+          BigInt(0),
+          pubKeyCoordinates,
+        ])
+        
+        const initcodeValue = ethers.utils.defaultAbiCoder.encode(
+          ["bytes", "uint256", "uint256[2]"],
+          [
+            credId,
+            BigInt(0),
+            pubKeyCoordinates
+          ],
+        ) as `0x${string}`
+        console.log(result10)
+
+        /** Factory Walelt을 만든다. */
+        // GENERATE THE INITCODE
+        const SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x9406Cc6185a346906296840746125a0E44976454"
+
+        const initCode = concat([
+          SIMPLE_ACCOUNT_FACTORY_ADDRESS,
+          encodeFunctionData({
+            abi: [{
+              inputs: [
+                { name: "value", type: "bytes" },
+              ],
+              name: "createAccount",
+              outputs: [{ name: "ret", type: "address" }],
+              stateMutability: "nonpayable",
+              type: "function",
+            }],
+            args: [initcodeValue]
+          })
+        ]);
+         
+        console.log("Generated initCode:", initCode)
+
+        const ENTRY_POINT_ADDRESS = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+ 
+        const senderAddress = await getSenderAddress(publicClient, {
+          initCode,
+          entryPoint: ENTRY_POINT_ADDRESS
+        })
+        console.log("Calculated sender address:", senderAddress)
+        
+        
+
+
+        return
 
         const ecVerifyInputs = authResponseToSigVerificationInput(
           decodedPassKey.response.attestationObject.authData.parsedCredentialPublicKey,
@@ -157,35 +235,23 @@ export default function Signup() {
             signature: decodedPassKey.response.attestationObject.attStmt.sig!,
           },
         );
+ 
         console.log('verify inputs', ecVerifyInputs);
+        console.log('chellenge', decodedPassKey.response.clientDataJSON.challenge)
         
-        return
 
-
-        const challengeOffsetRegex = new RegExp(`(.*)${Buffer.from(encodedChallenge).toString('hex')}`);
-        const challengePrefix = challengeOffsetRegex.exec(
-          base64url.toBuffer(passkey.response.clientDataJSON).toString('hex'),
-        )?.[1];
-        console.log({ challengeOffsetRegex, challengePrefix });
 
         console.log('webauthn verify inputs', [
-          decodedPassKey.response.attestationObject.authData.flagsMask,
-          `0x${base64url.toBuffer(passkey.response.authenticatorData!).toString('hex')}`,
-          `0x${base64url.toBuffer(passkey.response.clientDataJSON).toString('hex')}`,
-          Buffer.from(challengePrefix || '', 'hex').length,
+          ecVerifyInputs.messageHash,
           ecVerifyInputs.signature[0],
           ecVerifyInputs.signature[1],
         ]);
 
-
         return
 
-        const verifyResponse = await verifyWebAuthnRegistration(localResponse);
+        const verifyResponse = await verifyWebAuthnRegistration(passkey);
         console.log(verifyResponse)
         
-        
-      
-
         if (verifyResponse.value) {
           const member_info : member = {
             id : values.id,

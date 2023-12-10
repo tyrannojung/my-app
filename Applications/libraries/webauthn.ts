@@ -43,7 +43,7 @@ export const generateWebAuthnRegistrationOptions = async (email: string) => {
     userID: email,
     userName: email,
     timeout: 60000,
-    attestationType: "none",
+    attestationType: "direct",
     excludeCredentials: [],
     authenticatorSelection: {
       residentKey: "discouraged",

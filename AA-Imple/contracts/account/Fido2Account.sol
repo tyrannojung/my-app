@@ -21,6 +21,7 @@ contract Fido2Account is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Ini
     using ECDSA for bytes32;
 
     address public owner;
+    address public owner;
 
     IEntryPoint private immutable _entryPoint;
 

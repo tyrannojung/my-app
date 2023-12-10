@@ -14,7 +14,7 @@ const publicClient = createPublicClient({
   })
    
   const chain = "linea-testnet" // find the list of chain names on the Pimlico verifying paymaster reference page
-  const apiKey = "bb61238e-14a3-497e-bf45-acdf7e9a3f8e" // REPLACE THIS
+  const apiKey = "a76e8d51-4ce4-4df3-88f7-ada0402502b2" // REPLACE THIS
    
   const bundlerClient = createClient({
     transport: http(`https://api.pimlico.io/v1/${chain}/rpc?apikey=${apiKey}`),

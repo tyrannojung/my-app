@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import "../core/BaseAccount.sol";
 import "./callback/TokenCallbackHandler.sol";
-import "../lib/P256.sol";
+import "./lib/P256.sol";
 
 /**
   * minimal account.

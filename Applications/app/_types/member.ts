@@ -6,6 +6,8 @@ export interface member {
     auth_id? : string
     id? : string
     publicKey? : string
+    pubk? : string
+    pubkCoordinates? : string[]
     email? : string
     name? : string
     updatedAt? : Date | null

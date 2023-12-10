@@ -42,17 +42,18 @@ export default function Signin() {
         <Formik
           validationSchema={validationSchema}
           initialValues={{
-            email: 'tyrannojung@korea.ac.kr',
+            email: 'tyrannojung1@korea.ac.kr',
           }}
           onSubmit={async (values, {setErrors, setSubmitting }) => {
             setSubmitting(true); // 비동기통신
             
-
           const response = await generateWebAuthnLoginOptions(values.email);
           if (!response.success || !response.data) {
             console.log(response.message ?? "Something went wrong!");
             return;
           }
+          console.log(response.user)
+          
 
           const signatureResponse = await startAuthentication(response.data);
           console.log(signatureResponse)
@@ -67,17 +68,7 @@ export default function Signin() {
           const ecVerifyInputs = authResponseToSigVerificationInput({}, signatureResponse.response);
           console.log('verify inputs', ecVerifyInputs);
         
-          const challengeOffsetRegex = new RegExp(`(.*)${Buffer.from(base64url.encode(decodedResponse.clientDataJSON.challenge)).toString('hex')}`);
-          const challengePrefix = challengeOffsetRegex.exec(
-            base64url.toBuffer(signatureResponse.response.clientDataJSON).toString('hex'),
-          )?.[1];
-          console.log({ challengeOffsetRegex, challengePrefix });
-        
           console.log('webauthn verify inputs', [
-            decodedResponse.authenticatorData.flagsMask,
-            `0x${base64url.toBuffer(signatureResponse.response.authenticatorData).toString('hex')}`,
-            `0x${base64url.toBuffer(signatureResponse.response.clientDataJSON).toString('hex')}`,
-            Buffer.from(challengePrefix || '', 'hex').length,
             ecVerifyInputs.signature[0],
             ecVerifyInputs.signature[1],
           ]);

@@ -176,56 +176,51 @@ export default function Signup() {
         ];
         console.log(pubKeyCoordinates);
         
-        console.log('input data', [
-          credId,
-          BigInt(0),
-          pubKeyCoordinates,
-        ])
+        // console.log('input data', [
+        //   credId,
+        //   BigInt(0),
+        //   pubKeyCoordinates,
+        // ])
         
-        const initcodeValue = ethers.utils.defaultAbiCoder.encode(
-          ["bytes", "uint256", "uint256[2]"],
-          [
-            credId,
-            BigInt(0),
-            pubKeyCoordinates
-          ],
-        ) as `0x${string}`
-        console.log(result10)
+        // const initcodeValue = ethers.utils.defaultAbiCoder.encode(
+        //   ["bytes", "uint256", "uint256[2]"],
+        //   [
+        //     credId,
+        //     BigInt(0),
+        //     pubKeyCoordinates
+        //   ],
+        // ) as `0x${string}`
 
-        /** Factory Walelt을 만든다. */
-        // GENERATE THE INITCODE
-        const SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x9406Cc6185a346906296840746125a0E44976454"
+        // /** Factory Walelt을 만든다. */
+        // // GENERATE THE INITCODE
+        // const SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x9406Cc6185a346906296840746125a0E44976454"
 
-        const initCode = concat([
-          SIMPLE_ACCOUNT_FACTORY_ADDRESS,
-          encodeFunctionData({
-            abi: [{
-              inputs: [
-                { name: "value", type: "bytes" },
-              ],
-              name: "createAccount",
-              outputs: [{ name: "ret", type: "address" }],
-              stateMutability: "nonpayable",
-              type: "function",
-            }],
-            args: [initcodeValue]
-          })
-        ]);
+        // const initCode = concat([
+        //   SIMPLE_ACCOUNT_FACTORY_ADDRESS,
+        //   encodeFunctionData({
+        //     abi: [{
+        //       inputs: [
+        //         { name: "value", type: "bytes" },
+        //       ],
+        //       name: "createAccount",
+        //       outputs: [{ name: "ret", type: "address" }],
+        //       stateMutability: "nonpayable",
+        //       type: "function",
+        //     }],
+        //     args: [initcodeValue]
+        //   })
+        // ]);
          
-        console.log("Generated initCode:", initCode)
+        // console.log("Generated initCode:", initCode)
 
-        const ENTRY_POINT_ADDRESS = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+        // const ENTRY_POINT_ADDRESS = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
  
-        const senderAddress = await getSenderAddress(publicClient, {
-          initCode,
-          entryPoint: ENTRY_POINT_ADDRESS
-        })
-        console.log("Calculated sender address:", senderAddress)
+        // const senderAddress = await getSenderAddress(publicClient, {
+        //   initCode,
+        //   entryPoint: ENTRY_POINT_ADDRESS
+        // })
+        // console.log("Calculated sender address:", senderAddress)
         
-        
-
-
-        return
 
         const ecVerifyInputs = authResponseToSigVerificationInput(
           decodedPassKey.response.attestationObject.authData.parsedCredentialPublicKey,
@@ -241,13 +236,12 @@ export default function Signup() {
         
 
 
-        console.log('webauthn verify inputs', [
-          ecVerifyInputs.messageHash,
-          ecVerifyInputs.signature[0],
-          ecVerifyInputs.signature[1],
-        ]);
+        // console.log('webauthn verify inputs', [
+        //   ecVerifyInputs.messageHash,
+        //   ecVerifyInputs.signature[0],
+        //   ecVerifyInputs.signature[1],
+        // ]);
 
-        return
 
         const verifyResponse = await verifyWebAuthnRegistration(passkey);
         console.log(verifyResponse)
@@ -256,6 +250,8 @@ export default function Signup() {
           const member_info : member = {
             id : values.id,
             publicKey : verifyResponse.value.credentialPublicKey,
+            pubk : credId,
+            pubkCoordinates : pubKeyCoordinates,
             email : values.email,
             name : values.name,
             updatedAt : null,

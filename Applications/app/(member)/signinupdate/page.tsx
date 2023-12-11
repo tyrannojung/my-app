@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { member } from "@/app/_types/member"
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react'
+import { UserOperation } from "permissionless";
+import { bundlerSign } from "@/app/(member)/signinupdate/_webauthn/bundlerTool";
 
 import {
   startAuthentication,
@@ -26,7 +28,6 @@ import base64url from 'base64url';
 import { decodeAuthenticationCredential } from '../_debugger/decodeAuthenticationCredential';
 import { authResponseToSigVerificationInput } from '../_debugger/authResponseToSigVerificationInput';
 import { ethers } from 'ethers';
-import { bundlerCall } from "./_webauthn/bundlerCall";
 
 export default function Signin() {
 
@@ -48,29 +49,20 @@ export default function Signin() {
           }}
           onSubmit={async (values, {setErrors, setSubmitting }) => {
             setSubmitting(true); // 비동기통신
-            
-          const challenge = "0x014c5da4a29ee4f34063a0aa1c0a9090bd0340b954d6d466b4e8c6cdc946d129";
-          console.log(challenge)
-          const challenge2 = Buffer.from(challenge.slice(2), 'hex');
-          console.log(challenge2)
-          const challeng3 = base64url.encode(challenge2);
-          console.log(challeng3)
 
-          const response = await generateWebAuthnLoginOptions(values.email, challeng3);
+
+          const response = await generateWebAuthnLoginOptions(values.email);
           if (!response.success || !response.data || !response.user) {
             console.log(response.message ?? "Something went wrong!");
             return;
           }
+
 
           const uservalue : member = response.user;
 
           console.log(uservalue)
           console.log(response.data)
 
-          const aa = bundlerCall(uservalue);
-          console.log(aa);
-
-          return
 
 
           const signatureResponse = await startAuthentication({
@@ -102,13 +94,15 @@ export default function Signin() {
               ecVerifyInputs.signature
             ],
           )
-          
-          console.log(p256sig)
           // 해당 sig를 useroperation에 추가한다.
+          console.log(p256sig)
+
+          const userOperation: UserOperation = response.userOperation;
+          userOperation.signature = p256sig as `0x${string}`
           
-
-          return
-
+          const bundlerSignResult : boolean = await bundlerSign(userOperation);
+          
+         if(bundlerSignResult){
           const verifyResponse = await verifyWebAuthnLogin(signatureResponse);
           console.log(verifyResponse)
           
@@ -116,8 +110,7 @@ export default function Signin() {
             alert(verifyResponse.message ?? "Something went wrong!");
             return;
           }
-
-          return
+         }   
           
           const response_value : member = response.user;
           const result = await signIn("credentials", {

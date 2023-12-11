@@ -22,7 +22,9 @@ import {
   RegistrationResponseJSON,
 } from "@simplewebauthn/typescript-types";
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
-
+import { bundlerCall } from "@/app/(member)/signinupdate/_webauthn/bundlerTool";
+import { UserOperation } from "permissionless";
+import base64url from 'base64url';
 
 export const generateWebAuthnRegistrationOptions = async (email: string) => {
   const user = await findUser(email);
@@ -118,7 +120,7 @@ export const verifyWebAuthnRegistration = async (
   };
 };
 
-export const generateWebAuthnLoginOptions = async (email: string, challenge: string) => {
+export const generateWebAuthnLoginOptions = async (email: string) => {
   const user = await findUser(email);
   console.log(user)
   if (!user) {
@@ -127,7 +129,17 @@ export const generateWebAuthnLoginOptions = async (email: string, challenge: str
       message: "User does not exist",
     };
   }
+  const userOperation: UserOperation = await bundlerCall(user);
+  const valueBeforeSigning = userOperation.signature;
+  
+  console.log(valueBeforeSigning)
+  const challenge2 = Buffer.from(valueBeforeSigning.slice(2), 'hex');
+  console.log(challenge2)
+  const challeng3 = base64url.encode(challenge2);
+  console.log(challeng3)
 
+
+  
   const opts: GenerateAuthenticationOptionsOpts = {
     timeout: 60000,
     allowCredentials: user.devices.map((dev) => ({
@@ -143,9 +155,8 @@ export const generateWebAuthnLoginOptions = async (email: string, challenge: str
 
   await updateCurrentSession({ currentChallenge: options.challenge, email });
   if(options.allowCredentials){
-    console.log("options", options.allowCredentials[0].id);
     const opts2 = {
-      challenge: challenge,
+      challenge: challeng3,
       allowCredentials: [
         {
           id: options.allowCredentials[0].id,
@@ -164,7 +175,8 @@ export const generateWebAuthnLoginOptions = async (email: string, challenge: str
   return {
     success: true,
     data: options,
-    user: user
+    user: user,
+    userOperation : userOperation
   };
 };
 

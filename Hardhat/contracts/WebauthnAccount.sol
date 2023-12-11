@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import "./lib/account-abstraction/core/BaseAccount.sol";
 import "./lib/account-abstraction/callback/TokenCallbackHandler.sol";
-import "./lib/P256.sol";
+import "./lib/p256-verifier/P256.sol";
 /**
   * minimal account.
   *  this is sample minimal account.
@@ -21,12 +21,12 @@ import "./lib/P256.sol";
 contract WebauthnAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Initializable {
     using ECDSA for bytes32;
 
-    address public owner;
+    bytes public owner;
     uint256[2] public public_key_coordinates;
 
     IEntryPoint private immutable _entryPoint;
 
-    event SimpleAccountInitialized(IEntryPoint indexed entryPoint, address indexed owner);
+    event WebauthnAccountInitialized(IEntryPoint indexed entryPoint, bytes indexed owner);
 
     modifier onlyOwner() {
         _onlyOwner();
@@ -49,7 +49,7 @@ contract WebauthnAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, 
 
     function _onlyOwner() internal view {
         //directly from EOA owner, or through the account itself (which gets redirected through execute())
-        require(msg.sender == owner || msg.sender == address(this), "only owner");
+        require(msg.sender == address(this), "only owner");
     }
 
     /**
@@ -83,19 +83,19 @@ contract WebauthnAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, 
      * a new implementation of SimpleAccount must be deployed with the new EntryPoint address, then upgrading
       * the implementation by calling `upgradeTo()`
      */
-    function initialize(address anOwner, uint256[2] memory anPubkCoordinates) public virtual initializer {
+    function initialize(bytes memory anOwner, bytes memory anPubkCoordinates) public virtual initializer {
         _initialize(anOwner, anPubkCoordinates);
     }
 
-    function _initialize(address anOwner, uint256[2] memory anPubkCoordinate) internal virtual {
+    function _initialize(bytes memory anOwner, bytes memory anPubkCoordinate) internal virtual {
         owner = anOwner;
-        public_key_coordinates = anPubkCoordinate;
-        emit SimpleAccountInitialized(_entryPoint, owner);
+        public_key_coordinates = abi.decode(anPubkCoordinate, (uint256[2]));
+        emit WebauthnAccountInitialized(_entryPoint, owner);
     }
 
     // Require the function call went through EntryPoint or owner
     function _requireFromEntryPointOrOwner() internal view {
-        require(msg.sender == address(entryPoint()) || msg.sender == owner, "account: not Owner or EntryPoint");
+        require(msg.sender == address(entryPoint()) || msg.sender == address(this), "account: not Owner or EntryPoint");
     }
 
     /// implement template method of BaseAccount

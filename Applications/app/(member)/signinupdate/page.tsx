@@ -25,15 +25,7 @@ import * as yup from 'yup';
 import base64url from 'base64url';
 import { decodeAuthenticationCredential } from '../_debugger/decodeAuthenticationCredential';
 import { authResponseToSigVerificationInput } from '../_debugger/authResponseToSigVerificationInput';
-
-import { Address, Hash, concat, createClient, createPublicClient, encodeFunctionData, http, Hex } from "viem"
 import { ethers } from 'ethers';
-
-import { UserOperation, bundlerActions, getSenderAddress, getUserOperationHash, GetUserOperationReceiptReturnType } from "permissionless"
-import { pimlicoBundlerActions, pimlicoPaymasterActions } from "permissionless/actions/pimlico"
-import { generatePrivateKey, privateKeyToAccount, signMessage } from "viem/accounts"
-import { lineaTestnet, polygonMumbai } from "viem/chains"
-
 import { bundlerCall } from "./_webauthn/bundlerCall";
 
 export default function Signin() {
@@ -75,8 +67,10 @@ export default function Signin() {
           console.log(uservalue)
           console.log(response.data)
 
-          //const aa = bundlerCall(uservalue);
-          //console.log(aa);
+          const aa = bundlerCall(uservalue);
+          console.log(aa);
+
+          return
 
 
           const signatureResponse = await startAuthentication({

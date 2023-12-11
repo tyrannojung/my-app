@@ -25,7 +25,7 @@ contract WebauthnAccountFactory {
      * Note that during UserOperation execution, this method is called only if the account is not deployed.
      * This method returns an existing account address so that entryPoint.getSenderAddress() would work even after account creation
      */
-    function createAccount(address owner,uint256 salt, uint256[2] memory anPubkCoordinates) public returns (WebauthnAccount ret) {
+    function createAccount(bytes memory owner, uint256 salt, bytes memory anPubkCoordinates) public returns (WebauthnAccount ret) {
         address addr = getAddress(owner, salt, anPubkCoordinates);
         uint codeSize = addr.code.length;
         if (codeSize > 0) {
@@ -40,7 +40,7 @@ contract WebauthnAccountFactory {
     /**
      * calculate the counterfactual address of this account as it would be returned by createAccount()
      */
-    function getAddress(address owner,uint256 salt ,uint256[2] memory anPubkCoordinates) public view returns (address) {
+    function getAddress(bytes memory owner, uint256 salt ,bytes memory anPubkCoordinates) public view returns (address) {
         return Create2.computeAddress(bytes32(salt), keccak256(abi.encodePacked(
                 type(ERC1967Proxy).creationCode,
                 abi.encode(

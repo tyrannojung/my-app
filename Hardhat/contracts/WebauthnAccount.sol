@@ -83,7 +83,7 @@ contract WebauthnAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, 
      * a new implementation of SimpleAccount must be deployed with the new EntryPoint address, then upgrading
       * the implementation by calling `upgradeTo()`
      */
-    function initialize(bytes memory anOwner, bytes memory anPubkCoordinates) public virtual initializer {
+    function initialize(bytes memory anOwner, bytes memory anPubkCoordinates) public virtual {
         _initialize(anOwner, anPubkCoordinates);
     }
 
@@ -121,7 +121,40 @@ contract WebauthnAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, 
             if (res == true) {
                 return 0;
             }
+        } else {
+            bytes32 hash = userOpHash.toEthSignedMessageHash();
+            if (address(this) != hash.recover(userOp.signature))
+            return SIG_VALIDATION_FAILED;
         }
+        
+        return SIG_VALIDATION_FAILED;    
+
+    }
+
+    function validateSignature2(bytes memory userOpHash)
+        public view returns (uint256 validationData) {
+
+        (
+            bytes32 messageHash,
+            uint256[2] memory sigCoordinates
+        )
+        = _parseLoginServiceData(userOpHash);
+
+        bool res = P256.verifySignatureAllowMalleability(
+            messageHash,
+            sigCoordinates[0],
+            sigCoordinates[1],
+            public_key_coordinates[0],
+            public_key_coordinates[1]
+        );
+
+        if(res == true) {
+            res = P256.verifySignature(messageHash, sigCoordinates[0], sigCoordinates[1], public_key_coordinates[0], public_key_coordinates[1]);
+            if (res == true) {
+                return 0;
+            }
+        }
+        
         return SIG_VALIDATION_FAILED;    
 
     }

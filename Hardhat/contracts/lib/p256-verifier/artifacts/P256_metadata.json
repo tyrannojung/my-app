@@ -1,0 +1,46 @@
+{
+	"compiler": {
+		"version": "0.8.12+commit.f00d7308"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"notice": "Helper library for external contracts to verify P256 signatures.*",
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/lib/p256-verifier/P256.sol": "P256"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/lib/p256-verifier/P256.sol": {
+			"keccak256": "0x3cf31e576734bb53779d9822881b37e336e3fe754b83fdd3637a326f185bc4bc",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://de588a9d06ad8462a63f301c887b5ead8bc0dd327f85cb8fab6b9c96b3b66122",
+				"dweb:/ipfs/QmNXBoBNfEHHLTiLBoUNFgSgddzGKbLsq1NK47iz56rHET"
+			]
+		}
+	},
+	"version": 1
+}

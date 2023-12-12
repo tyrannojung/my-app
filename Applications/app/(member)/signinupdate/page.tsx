@@ -45,7 +45,7 @@ export default function Signin() {
         <Formik
           validationSchema={validationSchema}
           initialValues={{
-            email: 'tyrannojung1@korea.ac.kr',
+            email: '',
           }}
           onSubmit={async (values, {setErrors, setSubmitting }) => {
             setSubmitting(true); // 비동기통신
@@ -157,6 +157,7 @@ export default function Signin() {
                             <Form.Control
                               type="text"
                               name="email"
+                              placeholder="email"
                               value={values.email}
                               onChange={handleChange}
                               isValid={touched.email && !errors.email}

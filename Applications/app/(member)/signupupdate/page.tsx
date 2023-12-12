@@ -110,9 +110,9 @@ export default function Signup() {
     <Formik
       validationSchema={validationSchema}
       initialValues={{
-        id: 'tyrannojung',
-        email: 'tyrannojung@korea.ac.kr',
-        name: 'dawoon jung',
+        id: '',
+        email: '',
+        name: '',
       }}
 
       onSubmit={async (values, { setSubmitting }) => {
@@ -274,6 +274,7 @@ export default function Signup() {
                           <Form.Control
                             type="text"
                             name="id"
+                            placeholder="id"
                             value={values.id}
                             onChange={handleChange}
                             isValid={touched.id && !errors.id}
@@ -313,10 +314,11 @@ export default function Signup() {
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicName">
-                            <Form.Label>Last name</Form.Label>
+                            <Form.Label>Name</Form.Label>
                             <Form.Control
                               type="text"
                               name="name"
+                              placeholder="name"
                               value={values.name}
                               onChange={handleChange}
                               isValid={touched.name && !errors.name}

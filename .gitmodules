@@ -1,9 +1,0 @@
-[submodule "Solidity/contracts/lib/solady"]
-	path = Solidity/contracts/lib/solady
-	url = https://github.com/Vectorized/solady.git
-[submodule "Solidity/contracts/lib/account-abstraction"]
-	path = Solidity/contracts/lib/account-abstraction
-	url = https://github.com/eth-infinitism/account-abstraction.git
-[submodule "Solidity/contracts/lib/openzeppelin-contracts"]
-	path = Solidity/contracts/lib/openzeppelin-contracts
-	url = https://github.com/OpenZeppelin/openzeppelin-contracts.git

@@ -108,25 +108,15 @@ contract WebauthnAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, 
         )
         = _parseLoginServiceData(userOp.signature);
 
-        bool res = P256.verifySignatureAllowMalleability(
-            messageHash,
-            sigCoordinates[0],
-            sigCoordinates[1],
-            public_key_coordinates[0],
-            public_key_coordinates[1]
-        );
-
-        if(res == true) {
-            res = P256.verifySignature(messageHash, sigCoordinates[0], sigCoordinates[1], public_key_coordinates[0], public_key_coordinates[1]);
-            if (res == true) {
-                return 0;
-            }
+        bool res = P256.verifySignature(messageHash, sigCoordinates[0], sigCoordinates[1], public_key_coordinates[0], public_key_coordinates[1]);
+        if (res == true) {
+            return 0;
         } else {
             bytes32 hash = userOpHash.toEthSignedMessageHash();
             if (address(this) != hash.recover(userOp.signature))
-            return SIG_VALIDATION_FAILED;
+                return SIG_VALIDATION_FAILED;
         }
-        
+
         return SIG_VALIDATION_FAILED;    
 
     }
@@ -192,19 +182,9 @@ contract WebauthnAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, 
         )
         = _parseLoginServiceData(test);
 
-        bool res = P256.verifySignatureAllowMalleability(
-            messageHash,
-            sigCoordinates[0],
-            sigCoordinates[1],
-            public_key_coordinates[0],
-            public_key_coordinates[1]
-        );
-
-        if(res == true) {
-            res = P256.verifySignature(messageHash, sigCoordinates[0], sigCoordinates[1], public_key_coordinates[0], public_key_coordinates[1]);
-            if (res == true) {
-                return 0;
-            }
+        bool res = P256.verifySignature(messageHash, sigCoordinates[0], sigCoordinates[1], public_key_coordinates[0], public_key_coordinates[1]);
+        if (res == true) {
+            return 0;
         }
         
         return SIG_VALIDATION_FAILED;    

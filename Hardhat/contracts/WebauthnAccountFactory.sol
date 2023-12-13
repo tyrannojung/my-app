@@ -6,12 +6,9 @@ import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import "./WebauthnAccount.sol";
 
-/**
- * A sample factory contract for WebauthnAccount
- * A UserOperations "initCode" holds the address of the factory, and a method call (to createAccount, in this sample factory).
- * The factory's createAccount returns the target account address even if it is already installed.
- * This way, the entryPoint.getSenderAddress() can be called either before or after the account is created.
- */
+/// @title WebauthnAccountFactory
+/// @author dawoon jung
+/// @notice A factory contract for creating WebauthnAccount instances
 contract WebauthnAccountFactory {
     WebauthnAccount public immutable accountImplementation;
 
@@ -19,12 +16,11 @@ contract WebauthnAccountFactory {
         accountImplementation = new WebauthnAccount(_entryPoint);
     }
 
-    /**
-     * create an account, and return its address.
-     * returns the address even if the account is already deployed.
-     * Note that during UserOperation execution, this method is called only if the account is not deployed.
-     * This method returns an existing account address so that entryPoint.getSenderAddress() would work even after account creation
-     */
+    /// @dev Creates a WebauthnAccount if it doesn't exist and returns its instance.
+    /// @param owner The owner's bytes data
+    /// @param salt The salt for address computation
+    /// @param anPubkCoordinates The bytes representing account's public key coordinates
+    /// @return ret The instance of WebauthnAccount created or retrieved
     function createAccount(bytes memory owner, uint256 salt, bytes memory anPubkCoordinates) public returns (WebauthnAccount ret) {
         address addr = getAddress(owner, salt, anPubkCoordinates);
         uint codeSize = addr.code.length;
@@ -37,9 +33,12 @@ contract WebauthnAccountFactory {
             )));
     }
 
-    /**
-     * calculate the counterfactual address of this account as it would be returned by createAccount()
-     */
+
+    /// @dev Calculates the counterfactual address of a potential account created by createAccount().
+    /// @param owner The owner's bytes data
+    /// @param salt The salt for address computation
+    /// @param anPubkCoordinates The bytes representing account's public key coordinates
+    /// @return address The computed address for the potential account
     function getAddress(bytes memory owner, uint256 salt ,bytes memory anPubkCoordinates) public view returns (address) {
         return Create2.computeAddress(bytes32(salt), keccak256(abi.encodePacked(
                 type(ERC1967Proxy).creationCode,

@@ -172,23 +172,5 @@ contract WebauthnAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, 
         _onlyOwner();
     }
 
-
-    function validateSigTest(bytes memory test)
-        public view returns (uint256 validationData) {
-
-        (
-            bytes32 messageHash,
-            uint256[2] memory sigCoordinates
-        )
-        = _parseLoginServiceData(test);
-
-        bool res = P256.verifySignature(messageHash, sigCoordinates[0], sigCoordinates[1], public_key_coordinates[0], public_key_coordinates[1]);
-        if (res == true) {
-            return 0;
-        }
-        
-        return SIG_VALIDATION_FAILED;    
-
-    }
 }
 

@@ -11,13 +11,13 @@ describe("WebauthnAccountFactory", function () {
   let WebauthnAccountFactory;
   let webauthnAccountFactory
   
+  // 테스트1 create2 factory test
   beforeEach(async function () {
     WebauthnAccountFactory = await ethers.getContractFactory("WebauthnAccountFactory");
     webauthnAccountFactory = await WebauthnAccountFactory.deploy(entryPoint);
 
   });
 
-  
   it("Creating Wallets via Factory Contracts for create2 Addresses", async function () {
     const expectedAddress = await webauthnAccountFactory.getAddress(owner, salt, anPubkCoordinates);
     const account = await webauthnAccountFactory.createAccount(owner, salt, anPubkCoordinates);
@@ -39,45 +39,73 @@ describe("P256Verifier", function () {
     p256Verifier = await P256Verifier.deploy();
   });
 
-  
+  // 테스트2 Malleable signature test
   it('Malleable signature', async function () {
 
-    const messageHash = '0x267f9ea080b54bbea2443dff8aa543604564329783b6a515c6663a691c555490'
-    const r = '0x01655c1753db6b61a9717e4ccc5d6c4bf7681623dd54c2d6babc55125756661c'
-    const s = '0xf073023b6de130f18510af41f64f067c39adccd59f8789a55dbbe822b0ea2317'
-    const x = '0x65a2fa44daad46eab0278703edb6c4dcf5e30b8a9aec09fdc71a56f52aa392e4'
-    const y = '0x4a7a9e4604aa36898209997288e902ac544a555e4b5e0a9efef2b59233f3f437'
+    const pub1 = '0x7155f488d2b2dcd725c970fce7ff31d5c9dfb01ab7e5cfbc941e8b123b3e5d80' //pubk1
+    const pub2 = '0xcbefc201160c765a641b7e12652b0bf97fa93f8c7abf66fb02b5a8fefc244542' //pubk1
+    const sig1 = '0xd26acbcc358c7445ec91a63a0b26ffa50d3d10a5542758f608abd187f2f90433' //sig1
+    const sig2 = '0x0fe5eeede8eadfa7843f2d46ae780c2758ceaf714682dae17' //sig2 
+    const messageHash = '0x389bfc09a2b6ffaf87462b99289a86f566d276db9612f91e801c4f5e4064bc4c' // messageHash
 
     const isVerified = await p256Verifier.verifySignature(
       messageHash,
-      r,
-      s,
-      x,
-      y
+      sig1,
+      sig2,
+      pub1,
+      pub2
     );
 
     expect(isVerified).to.equal(false);
 
   });
 
+  // 테스트2-2 Non-malleable signature test
   it('Non-malleable signature', async function () {
 
-    const messageHash = '0x267f9ea080b54bbea2443dff8aa543604564329783b6a515c6663a691c555490'
-    const r = '0x01655c1753db6b61a9717e4ccc5d6c4bf7681623dd54c2d6babc55125756661c'
-    const s = '7033802732221576339889804108463427183539365869906989872244893535944704590394'
-    const x = '0x65a2fa44daad46eab0278703edb6c4dcf5e30b8a9aec09fdc71a56f52aa392e4'
-    const y = '0x4a7a9e4604aa36898209997288e902ac544a555e4b5e0a9efef2b59233f3f437'
+    const pub1 = '0x37904b2e629111f83172c0180bbe617b931013d02595e84fbcc73bb82357d3d8' //pubk1
+    const pub2 = '0xc7f041f64e8d51ad42509e039bbe7520a59f15d3d7acce3b47ca114f4ce0b02c' //pubk1
+    const sig1 = '0x15aaf6d7119230eaa4c945f7965c6109a82ad67d5e7a0845bb3a237cfa2a776d' //sig1
+    const sig2 = '0x6f4cc187d02122438d0b6425229b56bccbd113f3de584d8af816dc3bbceaf046' //sig2 
+    const messageHash = '0x5b61965616ca537c15186773df2646d4af4d4690403747e22e7401b94a8b6548' // messageHash
 
+    console.log(messageHash)
     const isVerified = await p256Verifier.verifySignature(
       messageHash,
-      r,
-      s,
-      x,
-      y
+      sig1,
+      sig2,
+      pub1,
+      pub2
     );
 
     expect(isVerified).to.equal(true);
 
   });
+})
 
-});
+  
+  // 테스트3 useroperation signature check test
+  describe("Operation Verifier", function () {
+  
+    let WebauthnVerifier;
+    let webauthnVerifier;
+  
+    beforeEach(async () => {
+      WebauthnVerifier = await ethers.getContractFactory('WebauthnVerifiert');
+      webauthnVerifier = await WebauthnVerifier.deploy();
+    });
+  
+    // 테스트1-1
+    it('Malleable signature', async function () {
+  
+      const validatecheck = '0x5b61965616ca537c15186773df2646d4af4d4690403747e22e7401b94a8b654815aaf6d7119230eaa4c945f7965c6109a82ad67d5e7a0845bb3a237cfa2a776d6f4cc187d02122438d0b6425229b56bccbd113f3de584d8af816dc3bbceaf046' // validate check
+      // byte32 = message hash, uint256[2] = [sig1, sig2] -> ethers.utils.defaultAbicoder.encode
+  
+      const isVerified = await webauthnVerifier.validateSigTest(
+        validatecheck,
+      );
+      // 0 = true, 1 = fail
+      expect(isVerified).to.equal(0n);
+  
+    })
+  })

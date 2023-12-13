@@ -11,7 +11,7 @@ describe("WebauthnAccountFactory", function () {
   let WebauthnAccountFactory;
   let webauthnAccountFactory
   
-  // 테스트1 create2 factory test
+  // test1 create2 factory test
   beforeEach(async function () {
     WebauthnAccountFactory = await ethers.getContractFactory("WebauthnAccountFactory");
     webauthnAccountFactory = await WebauthnAccountFactory.deploy(entryPoint);
@@ -39,7 +39,7 @@ describe("P256Verifier", function () {
     p256Verifier = await P256Verifier.deploy();
   });
 
-  // 테스트2 Malleable signature test
+  // test2 Malleable signature test
   it('Malleable signature', async function () {
 
     const pub1 = '0x7155f488d2b2dcd725c970fce7ff31d5c9dfb01ab7e5cfbc941e8b123b3e5d80' // webauthn pubk1
@@ -60,7 +60,7 @@ describe("P256Verifier", function () {
 
   });
 
-  // 테스트2-2 Non-malleable signature test
+  // test2-2 Non-malleable signature test
   it('Non-malleable signature', async function () {
 
     const pub1 = '0x37904b2e629111f83172c0180bbe617b931013d02595e84fbcc73bb82357d3d8' //webauthn pubk1
@@ -84,7 +84,7 @@ describe("P256Verifier", function () {
 })
 
   
-// 테스트3 useroperation signature check test
+// test3 useroperation signature check test
 describe("Operation Verifier", function () {
 
   let WebauthnVerifier;

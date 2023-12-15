@@ -28,6 +28,8 @@ import base64url from 'base64url';
 import { decodeAuthenticationCredential } from '../_debugger/decodeAuthenticationCredential';
 import { authResponseToSigVerificationInput } from '../_debugger/authResponseToSigVerificationInput';
 import { ethers } from 'ethers';
+import { toHex } from "viem"
+
 
 export default function Signin() {
 
@@ -52,7 +54,7 @@ export default function Signin() {
 
 
           const response = await generateWebAuthnLoginOptions(values.email);
-          if (!response.success || !response.data || !response.user) {
+          if (!response.success || !response.data || !response.user || !response.origindata) {
             console.log(response.message ?? "Something went wrong!");
             return;
           }
@@ -69,6 +71,33 @@ export default function Signin() {
             challenge: response.data.challenge,
             allowCredentials: response.data.allowCredentials,
           });
+          console.log(signatureResponse)
+          console.log(signatureResponse.response.authenticatorData)
+          
+          // Base64URL 인코딩된 authenticatorData
+          const authenticatorData33 = "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MFAAAAAA";
+          // Base64URL을 디코딩하여 바이트 배열로 변환
+          const decodedBytes = base64url.toBuffer(authenticatorData33);
+          // 바이트 배열을 16진수 문자열로 변환
+          const hexString = decodedBytes.toString('hex');
+          console.log("뭐가나오니 1 ====", hexString);
+          // Base64URL 인코딩된 authenticatorData
+          const authenticatorData2 = signatureResponse.response.authenticatorData;
+          // Base64URL을 디코딩하여 바이트 배열로 변환
+          const decodedBytes2 = base64url.toBuffer(authenticatorData2);
+          // 바이트 배열을 16진수 문자열로 변환
+          const hexString2 = `0x${decodedBytes2.toString('hex')}`;
+          console.log("뭐가나오니 2 ====", hexString2);
+
+          
+            const test3 = ethers.utils.defaultAbiCoder.encode(
+              ["bytes"],
+              [
+                hexString2
+              ],
+            )
+            console.log("test3 authenticatorData========", test3);
+
 
           console.log(signatureResponse)
 
@@ -78,10 +107,16 @@ export default function Signin() {
           const { response: decodedResponse } = decodeAuthenticationCredential(signatureResponse);
           console.log('decoded webauthn response', decodedResponse)
           console.log('chellenge', decodedResponse.clientDataJSON.challenge)
-          
+          console.log("뭐가나오니 원본 첼린지! ====", toHex(response.origindata).slice(2));
           const ecVerifyInputs = authResponseToSigVerificationInput({}, signatureResponse.response);
           console.log('verify inputs', ecVerifyInputs);
-        
+          const string_clientJson = JSON.stringify(decodedResponse.clientDataJSON);
+          const challengeLocation = BigInt(string_clientJson.indexOf('"challenge":'));
+          const responseTypeLocation = BigInt(string_clientJson.indexOf('"type":'));
+          console.log("먼값이니 ======1 !!" , challengeLocation)
+          console.log("먼값이니 ======2 !!" , responseTypeLocation)
+          console.log("먼값이니 ======3 !!", string_clientJson)
+
           console.log('webauthn verify inputs', [
             ecVerifyInputs.messageHash,
             ecVerifyInputs.signature,
@@ -96,6 +131,13 @@ export default function Signin() {
           )
           // 해당 sig를 useroperation에 추가한다.
           console.log(p256sig)
+
+
+          
+
+
+
+          return
 
           const userOperation: UserOperation = response.userOperation;
           userOperation.signature = p256sig as `0x${string}`

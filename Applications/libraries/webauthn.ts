@@ -25,6 +25,8 @@ import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import { bundlerCall } from "@/app/(member)/signinupdate/_webauthn/bundlerTool";
 import { UserOperation } from "permissionless";
 import base64url from 'base64url';
+import { ethers } from 'ethers';
+import { toHex } from "viem"
 
 export const generateWebAuthnRegistrationOptions = async (email: string) => {
   const user = await findUser(email);
@@ -131,12 +133,19 @@ export const generateWebAuthnLoginOptions = async (email: string) => {
   }
   const userOperation: UserOperation = await bundlerCall(user);
   const valueBeforeSigning = userOperation.signature;
+
+  const stringconvert = valueBeforeSigning.slice(2);
   
-  console.log(valueBeforeSigning)
-  const challenge2 = Buffer.from(valueBeforeSigning.slice(2), 'hex');
-  console.log(challenge2)
-  const challeng3 = base64url.encode(challenge2);
-  console.log(challeng3)
+  console.log("valueBeforeSigning====", valueBeforeSigning)
+  console.log("무슨값이 나오니??", base64url.encode("test"));
+  console.log("0x제거 ==== ", stringconvert);
+  
+  console.log("확인===tohex2" ,toHex("test").slice(2))
+
+  
+
+  const challeng3 = base64url.encode(stringconvert);
+  console.log("challeng3===", challeng3)
 
 
   
@@ -174,6 +183,7 @@ export const generateWebAuthnLoginOptions = async (email: string) => {
   
   return {
     success: true,
+    origindata : stringconvert,
     data: options,
     user: user,
     userOperation : userOperation
